@@ -250,6 +250,13 @@ bump they require (minor when loosening, major when tightening).
 
 ### Fixed
 
+- `Temporal.TimeZone` accepts every IANA tz name with a `/`: hyphens
+  (`America/Port-au-Prince`), signs and digits (`Etc/GMT+5`, `Etc/GMT-14`),
+  and bare `GMT`. The pattern is now
+  `^(?:UTC|GMT|[A-Za-z][A-Za-z0-9_+-]*(?:/[A-Za-z][A-Za-z0-9_+-]*)+)$`. It
+  checks the name's shape, not membership in one tz release, so names a newer
+  release adds still pass. Single-segment names other than `UTC` and `GMT`
+  (`EST`, `IST`) stay rejected.
 - The build-an-extension guide describes `examples/acme-scalars/` as it
   ships: the extension crate, the four binding crates, the smoke and
   third-scalar scripts. It no longer claims the example

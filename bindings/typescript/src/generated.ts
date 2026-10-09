@@ -2689,7 +2689,7 @@ export const SCALAR_METADATA: ScalarMetadata[] = [
     format: "",
     maxLength: 100,
     minLength: 0,
-    pattern: "^(?:UTC|[A-Za-z]+/[A-Za-z_/]+)$",
+    pattern: "^(?:UTC|GMT|[A-Za-z][A-Za-z0-9_+-]*(?:/[A-Za-z][A-Za-z0-9_+-]*)+)$",
     hasValidator: true,
     examples: ["America/New_York", "UTC", "Etc/UTC"],
     comparabilityClass: null,
