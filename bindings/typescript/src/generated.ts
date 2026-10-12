@@ -65,10 +65,13 @@ export const VALID_SCALARS: readonly string[] = [
   "Embedding.Vector",
   "File.SizeBytes",
   "Finance.Money",
+  "Generic.Boolean",
+  "Generic.Float64",
   "Generic.Int64",
   "Generic.JSON",
   "Generic.Probability",
   "Generic.StringMap",
+  "Generic.Text",
   "Geo.Location",
   "Git.PathPattern",
   "Identity.Name",
@@ -626,6 +629,82 @@ export function validateFinanceMoney(value: unknown | null | undefined): ScalarV
   return validateWithBackend("Finance.Money", value);
 }
 
+export type GenericBoolean = boolean;
+function convertGenericBooleanValue(value: unknown | null): GenericBoolean | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  return value as GenericBoolean;
+}
+export function parseGenericBoolean(value: unknown): GenericBoolean | null {
+  return convertGenericBooleanValue(coerceValue("Generic.Boolean", value));
+}
+export function normalizeGenericBoolean(value: unknown): GenericBoolean | null {
+  return convertGenericBooleanValue(coerceValue("Generic.Boolean", value));
+}
+export function parseGenericBooleanStrict(value: string): GenericBoolean {
+  const parsed = convertGenericBooleanValue(backend.parse("Generic.Boolean", value));
+  if (parsed === null) {
+    throw new Error("invalid Generic.Boolean");
+  }
+  return parsed;
+}
+export function normalizeGenericBooleanStrict(value: string): GenericBoolean {
+  const normalized = convertGenericBooleanValue(backend.normalize("Generic.Boolean", value));
+  if (normalized === null) {
+    throw new Error("invalid Generic.Boolean");
+  }
+  return normalized;
+}
+export function validateGenericBoolean(value: unknown | null | undefined): ScalarValidationResult {
+  return validateWithBackend("Generic.Boolean", value);
+}
+
+export type GenericFloat64 = number;
+function convertGenericFloat64Value(value: unknown | null): GenericFloat64 | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  // The lenient path already decodes a JSON number; the strict path hands back
+  // the core's canonical text, which must become the number this type declares.
+  if (typeof value === "number") {
+    return value as GenericFloat64;
+  }
+  if (typeof value !== "string") {
+    return null;
+  }
+  const parsed = Number(value);
+  if (value.trim() === "" || !Number.isFinite(parsed)) {
+    return null;
+  }
+  return parsed as GenericFloat64;
+}
+export function parseGenericFloat64(value: unknown): GenericFloat64 | null {
+  return convertGenericFloat64Value(coerceValue("Generic.Float64", value));
+}
+export function normalizeGenericFloat64(value: unknown): GenericFloat64 | null {
+  return convertGenericFloat64Value(coerceValue("Generic.Float64", value));
+}
+export function parseGenericFloat64Strict(value: string): GenericFloat64 {
+  const parsed = convertGenericFloat64Value(backend.parse("Generic.Float64", value));
+  if (parsed === null) {
+    throw new Error("invalid Generic.Float64");
+  }
+  return parsed;
+}
+export function normalizeGenericFloat64Strict(value: string): GenericFloat64 {
+  const normalized = convertGenericFloat64Value(backend.normalize("Generic.Float64", value));
+  if (normalized === null) {
+    throw new Error("invalid Generic.Float64");
+  }
+  return normalized;
+}
+export function validateGenericFloat64(value: unknown | null | undefined): ScalarValidationResult {
+  return validateWithBackend("Generic.Float64", value);
+}
+
 export type GenericInt64 = number;
 function convertGenericInt64Value(value: unknown | null): GenericInt64 | null {
   if (value === null || value === undefined) {
@@ -792,6 +871,38 @@ export function normalizeGenericStringMapStrict(value: string): GenericStringMap
 }
 export function validateGenericStringMap(value: unknown | null | undefined): ScalarValidationResult {
   return validateWithBackend("Generic.StringMap", value);
+}
+
+export type GenericText = string & { readonly __brand: "Generic.Text" };
+function convertGenericTextValue(value: unknown | null): GenericText | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  return value as GenericText;
+}
+export function parseGenericText(value: unknown): GenericText | null {
+  return convertGenericTextValue(coerceValue("Generic.Text", value));
+}
+export function normalizeGenericText(value: unknown): GenericText | null {
+  return convertGenericTextValue(coerceValue("Generic.Text", value));
+}
+export function parseGenericTextStrict(value: string): GenericText {
+  const parsed = convertGenericTextValue(backend.parse("Generic.Text", value));
+  if (parsed === null) {
+    throw new Error("invalid Generic.Text");
+  }
+  return parsed;
+}
+export function normalizeGenericTextStrict(value: string): GenericText {
+  const normalized = convertGenericTextValue(backend.normalize("Generic.Text", value));
+  if (normalized === null) {
+    throw new Error("invalid Generic.Text");
+  }
+  return normalized;
+}
+export function validateGenericText(value: unknown | null | undefined): ScalarValidationResult {
+  return validateWithBackend("Generic.Text", value);
 }
 
 export type GeoLocation = { lat: number; lon: number };
@@ -2124,6 +2235,42 @@ export const SCALAR_METADATA: ScalarMetadata[] = [
     reservedWordsMatchPartial: false,
   },
   {
+    canonicalName: "Generic.Boolean",
+    symbol: "GenericBoolean",
+    primitive: "Bool",
+    tsType: "boolean",
+    format: "",
+    maxLength: 0,
+    minLength: 0,
+    pattern: "",
+    hasValidator: true,
+    examples: ["true", "false"],
+    comparabilityClass: null,
+    isSortable: true,
+    caseInsensitive: false,
+    reservedWords: [],
+    reservedWordsCaseInsensitive: false,
+    reservedWordsMatchPartial: false,
+  },
+  {
+    canonicalName: "Generic.Float64",
+    symbol: "GenericFloat64",
+    primitive: "Float",
+    tsType: "number",
+    format: "",
+    maxLength: 0,
+    minLength: 0,
+    pattern: "",
+    hasValidator: true,
+    examples: ["3.5", "-0.25"],
+    comparabilityClass: null,
+    isSortable: true,
+    caseInsensitive: false,
+    reservedWords: [],
+    reservedWordsCaseInsensitive: false,
+    reservedWordsMatchPartial: false,
+  },
+  {
     canonicalName: "Generic.Int64",
     symbol: "GenericInt64",
     primitive: "Int",
@@ -2190,6 +2337,24 @@ export const SCALAR_METADATA: ScalarMetadata[] = [
     examples: [],
     comparabilityClass: null,
     isSortable: false,
+    caseInsensitive: false,
+    reservedWords: [],
+    reservedWordsCaseInsensitive: false,
+    reservedWordsMatchPartial: false,
+  },
+  {
+    canonicalName: "Generic.Text",
+    symbol: "GenericText",
+    primitive: "String",
+    tsType: "string",
+    format: "",
+    maxLength: 0,
+    minLength: 0,
+    pattern: "",
+    hasValidator: true,
+    examples: ["Platform Engineering", ""],
+    comparabilityClass: null,
+    isSortable: true,
     caseInsensitive: false,
     reservedWords: [],
     reservedWordsCaseInsensitive: false,

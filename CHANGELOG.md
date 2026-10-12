@@ -114,6 +114,13 @@ bump they require (minor when loosening, major when tightening).
   `1747270862000` and `100000000000` (the smallest 12-digit count). The
   scalar already rejected them; no accept-set change, no bump required.
   Carried from parable-platform PR #7381.
+- Three built-in scalars for plain fields: `Generic.Text` (any string),
+  `Generic.Float64` (any finite number) and `Generic.Boolean` (`true` or
+  `false`). `Generic.Boolean` is the first scalar backed by the `Bool`
+  primitive: its `validate` accepts exactly `true` and `false` after trimming,
+  `normalize` trims, and lenient coercion keeps a JSON bool and reads a
+  trimmed, case-insensitive `"true"`/`"false"` string. New scalars only, so
+  a minor bump. Carried from parable-platform PR #8155 (PARABLE-5698).
 
 ### Changed
 

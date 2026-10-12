@@ -54,9 +54,9 @@ pub fn coerce_float(value: &Value, strict: bool) -> Option<f64> {
 /// accepted; otherwise a trimmed, lowercased `"true"`/`"false"` string is
 /// accepted too.
 ///
-/// No catalog scalar is backed by `Bool` today, so the scalar-level bool branch
-/// in [`coerce_lenient`] is unreachable. This helper is exported anyway because
-/// downstream DataFusion UDFs coerce booleans directly without going through a scalar id.
+/// `Generic.Boolean` is the one catalog scalar backed by `Bool`, and reaches
+/// the scalar-level bool branch in [`Registry::coerce_lenient`]. Downstream
+/// DataFusion UDFs also coerce booleans directly without going through a scalar.
 pub fn coerce_bool(value: &Value, strict: bool) -> Option<bool> {
     match value {
         Value::Bool(b) => Some(*b),
@@ -131,8 +131,9 @@ impl Registry {
     ///   primitive to coerce to.
     /// - Otherwise the scalar's `metadata_primitive` selects the coercion:
     ///   `Int` and `Float` parse the numeric value (range-checked by the
-    ///   scalar's `validate`), while `String` and `Type` run the scalar's
-    ///   `parse` to get the canonical string.
+    ///   scalar's `validate`), `Bool` reads a JSON bool or a
+    ///   `"true"`/`"false"` string, while `String` and `Type` run the
+    ///   scalar's `parse` to get the canonical string.
     ///
     /// A caller that coerces many values of one scalar resolves it once with
     /// [`Registry::lenient_coercer`]; this form looks the name up per call.
@@ -199,6 +200,13 @@ impl LenientCoercer<'_> {
             "Int" => coerce_lenient_int(registry, scalar, value, scalar_name),
             "Float" => coerce_lenient_float(registry, scalar, value, scalar_name),
             "String" | "Type" => coerce_lenient_string(registry, scalar, value),
+            "Bool" => match coerce_bool(value, false) {
+                Some(flag) => LenientCoerceResult::ok(Value::Bool(flag)),
+                None => LenientCoerceResult::failed(ScalarError::new(
+                    ErrorKind::Parse,
+                    format!("failed to coerce {value:?} to {scalar_name}"),
+                )),
+            },
             // A metadata_omit scalar declares no primitive, so it cannot type
             // a column: each value fails rather than panicking the writer.
             "" => LenientCoerceResult::failed(ScalarError::new(
@@ -314,6 +322,42 @@ mod tests {
         assert_eq!(result.value, None);
         assert!(result.error.is_some());
         assert_eq!(result.error.unwrap().kind, ErrorKind::Parse);
+    }
+
+    // Generic.Boolean: the lenient path keeps a JSON bool and reads the text
+    // forms; anything else is a parse failure.
+    #[test]
+    fn coerces_generic_boolean() {
+        assert_eq!(
+            coerce_lenient(&json!(true), "Generic.Boolean").value,
+            Some(json!(true))
+        );
+        assert_eq!(
+            coerce_lenient(&json!(" false "), "Generic.Boolean").value,
+            Some(json!(false))
+        );
+        let refused = coerce_lenient(&json!("yes"), "Generic.Boolean");
+        assert_eq!(refused.value, None);
+        assert_eq!(
+            refused.error.map(|error| error.kind),
+            Some(ErrorKind::Parse)
+        );
+    }
+
+    // Generic.Text and Generic.Float64 keep any text and any finite number.
+    #[test]
+    fn coerces_generic_text_and_float64() {
+        assert_eq!(
+            coerce_lenient(&json!("Data Engineering"), "Generic.Text").value,
+            Some(json!("Data Engineering"))
+        );
+        assert_eq!(
+            coerce_lenient(&json!(3.5), "Generic.Float64").value,
+            Some(json!(3.5))
+        );
+        assert!(coerce_lenient(&json!("abc"), "Generic.Float64")
+            .error
+            .is_some());
     }
 
     #[test]

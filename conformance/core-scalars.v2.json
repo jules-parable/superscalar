@@ -27,10 +27,13 @@
     "Embedding.Vector": { "comparability_class": null, "is_sortable": false, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "File.SizeBytes": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Finance.Money": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
+    "Generic.Boolean": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
+    "Generic.Float64": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Generic.Int64": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Generic.JSON": { "comparability_class": null, "is_sortable": false, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Generic.Probability": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Generic.StringMap": { "comparability_class": null, "is_sortable": false, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
+    "Generic.Text": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Geo.Location": { "comparability_class": null, "is_sortable": false, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Git.PathPattern": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
     "Identity.Name": { "comparability_class": null, "is_sortable": true, "case_insensitive": false, "reserved_words": [], "reserved_words_case_insensitive": false, "reserved_words_match_partial": false },
@@ -722,6 +725,62 @@
         }
       ]
     },
+    "Generic.Boolean": {
+      "accepted": [
+        {
+          "input": "true",
+          "normalized": "true"
+        },
+        {
+          "input": "false",
+          "normalized": "false"
+        }
+      ],
+      "rejected": [
+        {
+          "input": "yes",
+          "validator": "parse"
+        },
+        {
+          "input": "1",
+          "validator": "parse"
+        },
+        {
+          "input": "True",
+          "validator": "parse"
+        }
+      ]
+    },
+    "Generic.Float64": {
+      "accepted": [
+        {
+          "input": "3.5",
+          "normalized": "3.5"
+        },
+        {
+          "input": "-0.25",
+          "normalized": "-0.25"
+        },
+        {
+          "input": "7",
+          "normalized": "7"
+        }
+      ],
+      "rejected": [
+        {
+          "input": "abc",
+          "validator": "parse"
+        },
+        {
+          "input": "NaN",
+          "validator": "parse"
+        },
+        {
+          "input": "inf",
+          "validator": "parse"
+        }
+      ]
+    },
     "Generic.Int64": {
       "accepted": [
         {
@@ -1087,6 +1146,23 @@
           "validator": "custom"
         }
       ]
+    },
+    "Generic.Text": {
+      "accepted": [
+        {
+          "input": "Platform Engineering",
+          "normalized": "Platform Engineering"
+        },
+        {
+          "input": "",
+          "normalized": ""
+        },
+        {
+          "input": "  spaced  ",
+          "normalized": "  spaced  "
+        }
+      ],
+      "rejected": []
     },
     "Identity.Name": {
       "accepted": [
